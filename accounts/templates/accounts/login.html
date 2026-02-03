@@ -1,0 +1,71 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section" style="display: flex; align-items: center; justify-content: center; min-height: 80vh;">
+    <div class="container">
+        <div class="upload-container" style="max-width: 420px; margin: 0 auto;">
+            <div class="section-header">
+                <span class="hero-tag">Secure Access</span>
+                <h2 class="text-gradient">Welcome Back</h2>
+                <p>Sign in to your DermoAI account.</p>
+            </div>
+
+            <div class="upload-box">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div
+                        style="background: rgba(225, 29, 72, 0.1); color: var(--primary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        Invalid username or password.
+                    </div>
+                    {% endif %}
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="id_username"
+                            style="display: block; font-size: 1rem; color: var(--text); font-weight: 500; margin-bottom: 0.75rem;">Username</label>
+                        <input type="text" name="username" id="id_username" class="auth-input"
+                            placeholder="Enter username" required>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <label for="id_password"
+                            style="display: block; font-size: 1rem; color: var(--text); font-weight: 500; margin-bottom: 0.75rem;">Password</label>
+                        <input type="password" name="password" id="id_password" class="auth-input"
+                            placeholder="Enter password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+
+                    <div style="margin-top: 2rem; text-align: center; font-size: 0.95rem; color: var(--text-muted);">
+                        Don't have an account? <a href="{% url 'register' %}"
+                            style="color: var(--primary); font-weight: 700; text-decoration: none;">Join DermoAI</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-input {
+        width: 100% !important;
+        padding: 0.85rem 1.25rem !important;
+        border-radius: 0.75rem !important;
+        color: var(--text) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid var(--glass-border) !important;
+        outline: none !important;
+        font-family: inherit !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .auth-input:focus {
+        border-color: var(--primary) !important;
+        background: rgba(225, 29, 72, 0.05) !important;
+        box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.2) !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,318 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section" style="padding-top: 4rem;">
+    <div class="container">
+        <div class="analysis-grid">
+            <!-- Left Side: Upload Area -->
+            <div class="analysis-main">
+                <div class="section-header" style="text-align: left; margin-bottom: 3rem;">
+                    <span class="hero-tag">Analysis Portal</span>
+                    <h2 class="text-gradient">Screen Your Skin</h2>
+                    <p>Our AI will process your image to detect potential abnormalities.</p>
+                </div>
+
+                <div class="upload-zone" id="drop-zone">
+                    <form method="post" enctype="multipart/form-data" id="upload-form">
+                        {% csrf_token %}
+                        <div class="drop-content" id="placeholder">
+                            <div class="medical-icon-wrapper">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="12" y1="18" x2="12" y2="12" />
+                                    <line x1="9" y1="15" x2="15" y2="15" />
+                                </svg>
+                            </div>
+                            <h3>Drag & Drop Image</h3>
+                            <p>or click to browse your files</p>
+                            <span class="file-specs">Supports JPG, PNG (Max 10MB)</span>
+                        </div>
+
+                        <div class="preview-zone hidden" id="preview-container">
+                            <img id="image-preview" src="#" alt="Preview">
+                            <div class="preview-overlay">
+                                <span>Change Image</span>
+                            </div>
+                        </div>
+
+                        <label for="file-upload" class="sr-only">Choose File</label>
+                        <input type="file" name="image" id="file-upload" class="hidden-input" accept="image/*" required>
+
+                        <div class="action-area">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; border-radius: 1rem;">
+                                Start AI Analysis
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-outline"
+                                style="width: 100%; border-radius: 1rem; margin-top: 1rem;">
+                                Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Side: Instructions & Tips -->
+            <div class="analysis-sidebar">
+                <div class="sidebar-card">
+                    <h4>How to take a good photo</h4>
+                    <div class="tip-item">
+                        <div class="tip-num">01</div>
+                        <div class="tip-text">
+                            <strong>Use Natural Light</strong>
+                            <p>Avoid using flash. Natural daylight provides the clearest structure and color.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-num">02</div>
+                        <div class="tip-text">
+                            <strong>Focus & Center</strong>
+                            <p>Center the lesion and ensure the camera is focused for maximum detail.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-num">03</div>
+                        <div class="tip-text">
+                            <strong>Clear Background</strong>
+                            <p>Remove hair or any distractions from the area if possible.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card privacy-card">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">🛡️</span>
+                        <h5 style="margin: 0; color: var(--text);">Privacy First</h5>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Processed images are used only
+                        for analysis and are not stored on our permanent servers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 4rem;
+        align-items: start;
+    }
+
+    .upload-zone {
+        background: var(--surface);
+        border: 2px dashed var(--glass-border);
+        border-radius: 2rem;
+        padding: 3rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-zone:hover {
+        border-color: var(--primary);
+        background: rgba(225, 29, 72, 0.02);
+    }
+
+    .medical-icon-wrapper {
+        width: 100px;
+        height: 100px;
+        background: rgba(225, 29, 72, 0.1);
+        border-radius: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        color: var(--primary);
+        transition: transform 0.3s ease;
+    }
+
+    .upload-zone:hover .medical-icon-wrapper {
+        transform: scale(1.1);
+    }
+
+    .drop-content h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .drop-content p {
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .file-specs {
+        font-size: 0.75rem;
+        color: var(--primary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .preview-zone {
+        width: 100%;
+        max-height: 400px;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        position: relative;
+        margin-bottom: 2rem;
+        border: 1px solid var(--glass-border);
+    }
+
+    #image-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+        cursor: pointer;
+    }
+
+    .preview-zone:hover .preview-overlay {
+        opacity: 1;
+    }
+
+    .hidden-input {
+        display: none;
+    }
+
+    .drop-content,
+    .preview-zone {
+        cursor: pointer;
+    }
+
+    .action-area {
+        margin-top: 3rem;
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-card {
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 2rem;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .sidebar-card h4 {
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        color: var(--primary);
+    }
+
+    .tip-item {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .tip-num {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--primary);
+        background: rgba(225, 29, 72, 0.1);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .tip-text strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 1rem;
+        color: var(--text);
+    }
+
+    .tip-text p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .privacy-card {
+        background: linear-gradient(135deg, rgba(225, 29, 72, 0.05) 0%, transparent 100%);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    @media (max-width: 968px) {
+        .analysis-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+</style>
+
+<script>
+    const fileInput = document.getElementById('file-upload');
+    const dropZone = document.getElementById('drop-zone');
+    const previewContainer = document.getElementById('preview-container');
+    const placeholder = document.getElementById('placeholder');
+    const previewImage = document.getElementById('image-preview');
+
+    fileInput.addEventListener('change', handleFiles);
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--primary)';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = 'var(--glass-border)';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length) {
+            fileInput.files = files;
+            handleFiles({ target: fileInput });
+        }
+    });
+
+    function handleFiles(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                previewImage.src = event.target.result;
+                placeholder.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Allow clicking the placeholder to choose file
+    placeholder.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Allow clicking the preview to change image
+    previewContainer.addEventListener('click', () => {
+        fileInput.click();
+    });
+</script>
+{% endblock %}
