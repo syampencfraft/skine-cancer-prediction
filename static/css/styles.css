@@ -520,3 +520,24 @@ footer {
         font-size: 1.5rem;
     }
 }
+
+/* Risk Levels */
+.risk-low {
+    color: #10b981 !important;
+}
+
+.risk-moderate {
+    color: #f59e0b !important;
+}
+
+.risk-high {
+    color: #e11d48 !important;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--glass-border);
+    flex: 1;
+}

@@ -34,8 +34,10 @@
                 <li><a href="{% url 'home' %}">Home</a></li>
                 {% if user.is_authenticated %}
                 <li><a href="{% url 'predict' %}">Analysis</a></li>
-                <li style="color: var(--text-muted); font-size: 0.9rem;">Hii, <span style="color: var(--primary);">{{
-                        user.username }}</span></li>
+                <li><a href="{% url 'history' %}">History</a></li>
+                <li style="color: var(--text-muted); font-size: 0.9rem;">
+                    <span style="color: var(--primary); font-weight: 600;">{{ user.username }}</span>
+                </li>
                 <li><a href="{% url 'logout' %}" class="btn-outline"
                         style="padding: 0.4rem 1rem; border-radius: 9999px;">Logout</a></li>
                 <li><a href="{% url 'predict' %}" class="nav-cta">Analyze Now</a></li>

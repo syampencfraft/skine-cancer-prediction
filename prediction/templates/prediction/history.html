@@ -1,0 +1,84 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section" style="padding-top: 4rem;">
+    <div class="container">
+        <div class="section-header" style="text-align: left; margin-bottom: 3rem; max-width: 100%;">
+            <h2 class="text-gradient" style="font-size: 3rem; margin-bottom: 0.5rem;">Your History</h2>
+            <p style="font-size: 1.1rem; opacity: 0.8;">Track and manage your past dermatological assessments.</p>
+        </div>
+
+        {% if scans %}
+        <div class="feature-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+            {% for scan in scans %}
+            <div class="feature-card"
+                style="padding: 0; display: flex; flex-direction: column; overflow: hidden; background: #0a0a0a; border: 1px solid var(--glass-border); border-radius: 1.5rem; transition: transform 0.3s ease, border-color 0.3s ease;">
+                <div class="history-image" style="width: 100%; height: 260px; position: relative;">
+                    <img src="{{ scan.image.url }}" alt="Scan" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div
+                        style="position: absolute; bottom: 1rem; left: 1rem; right: 1rem; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); padding: 0.75rem 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.8rem; font-weight: 500; color: #fff;">
+                            {{ scan.created_at|date:"M d, Y" }}
+                        </span>
+                        <span
+                            class="{% if scan.risk_level == 'High' %}risk-high{% elif scan.risk_level == 'Moderate' %}risk-moderate{% else %}risk-low{% endif %}"
+                            style="font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {{ scan.risk_level }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="history-info" style="padding: 2rem; flex-grow: 1; display: flex; flex-direction: column;">
+                    <h3 style="font-size: 1.4rem; margin-bottom: 1rem; color: var(--text); line-height: 1.2;">
+                        {{ scan.result|title }}
+                    </h3>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <div
+                            style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: baseline;">
+                            <span
+                                style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">AI
+                                Confidence</span>
+                            <span style="font-size: 1rem; font-weight: 800; color: var(--primary);">
+                                {{ scan.confidence }}%
+                            </span>
+                        </div>
+                        <div
+                            style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                            <div
+                                style="width: {{ scan.confidence }}%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 3px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <p
+                        style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem; flex-grow: 1;">
+                        {{ scan.recommendation|truncatechars:120 }}
+                    </p>
+
+                    <a href="{% url 'predict' %}?id={{ scan.id }}" class="btn-primary"
+                        style="padding: 0.9rem; border-radius: 1rem; text-align: center; font-size: 0.95rem; text-decoration: none; display: block; width: 100%;">
+                        View Detailed Report
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="result-card"
+            style="text-align: center; padding: 6rem 2rem; border-radius: 2rem; background: rgba(255, 255, 255, 0.02);">
+            <div class="feature-icon" style="margin: 0 auto 2rem; width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">No Scan History</h2>
+            <p
+                style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Your diagnostic records will appear here after your first analysis. Ready to start?</p>
+            <a href="{% url 'predict' %}" class="btn btn-primary" style="padding: 1.25rem 3rem;">Begin Analysis</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -27,14 +27,15 @@
                     <!-- Prediction Result -->
                     <div class="prediction-box">
                         <span class="label">Primary Diagnosis</span>
-                        <h3 class="result-value text-primary-gradient" style="margin-bottom: 0.5rem;">{{
-                            scan.result|title }}</h3>
+                        <h3 class="result-value text-primary-gradient" style="margin-bottom: 0.5rem;">
+                            {{ scan.result|title }}</h3>
                         <p style="font-size: 0.9rem; color: var(--text-muted);">
                             AI confidence score for this classification
                         </p>
                     </div>
 
                     <!-- Confidence Meter -->
+                    {% if scan.confidence > 0 %}
                     <div class="confidence-meter">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span class="label">Confidence</span>
@@ -44,16 +45,41 @@
                         </div>
 
                         <div class="progress-bar">
-                            <div class="fill" style="width: {{ scan.confidence }}%;"></div>
+                            <div class="fill" style="width: {{ scan.confidence|default:0 }}%;"></div>
                         </div>
                     </div>
+                    {% endif %}
+
+                    <!-- Risk Level & Recommendation -->
+                    {% if scan.confidence > 0 %}
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div class="info-card">
+                                <span class="label" style="display: block; margin-bottom: 0.25rem;">Risk Level</span>
+                                <span
+                                    class="{% if scan.risk_level == 'High' %}risk-high{% elif scan.risk_level == 'Moderate' %}risk-moderate{% else %}risk-low{% endif %}"
+                                    style="font-weight: 700;">
+                                    {{ scan.risk_level }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="prediction-box"
+                            style="background: rgba(var(--primary-rgb), 0.05); border: 1px dashed var(--primary);">
+                            <span class="label">Medical Recommendation</span>
+                            <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text); margin-top: 0.5rem;">
+                                {{ scan.recommendation }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- Disclaimer -->
                     <div class="disclaimer" style="margin-bottom: 2rem;">
                         <p>
                             <strong>Important Note:</strong>
-                            This AI analysis is for informational purposes only.
-                            It is not a clinical diagnosis. Please consult a qualified
+                            This Gemini Pro AI analysis is for informational purposes only.
+                            It is not a final clinical diagnosis. Please consult a qualified
                             dermatologist for a professional evaluation.
                         </p>
                     </div>

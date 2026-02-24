@@ -14,14 +14,17 @@ def predict(request):
         form = SkinCancerPredictionForm(request.POST, request.FILES)
         if form.is_valid():
             scan = form.save(commit=False)
+            scan.user = request.user
             scan.save()
             
             # Perform prediction
-            label, confidence = load_model_and_predict(scan.image.path)
+            label, confidence, risk_level, recommendation = load_model_and_predict(scan.image.path)
             
             # Update scan with result
             scan.result = label
             scan.confidence = confidence
+            scan.risk_level = risk_level
+            scan.recommendation = recommendation
             scan.save()
             
             return render(request, 'prediction/result.html', {'scan': scan})
@@ -29,3 +32,8 @@ def predict(request):
         form = SkinCancerPredictionForm()
     
     return render(request, 'prediction/predict.html', {'form': form})
+
+@login_required
+def history(request):
+    scans = Scan.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'prediction/history.html', {'scans': scans})
