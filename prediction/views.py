@@ -10,6 +10,15 @@ def home(request):
 
 @login_required
 def predict(request):
+    # Support viewing existing results from history
+    scan_id = request.GET.get('id')
+    if scan_id:
+        try:
+            scan = Scan.objects.get(id=scan_id, user=request.user)
+            return render(request, 'prediction/result.html', {'scan': scan})
+        except Scan.DoesNotExist:
+            return redirect('history')
+
     if request.method == 'POST':
         form = SkinCancerPredictionForm(request.POST, request.FILES)
         if form.is_valid():
