@@ -1,0 +1,211 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="dashboard-header"
+            style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                {% if doctor.profile_picture %}
+                <img src="{{ doctor.profile_picture.url }}" alt="Dr. {{ user.last_name }}"
+                    style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+                {% else %}
+                <div
+                    style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; color: white;">
+                    {{ user.first_name|first }}{{ user.last_name|first }}
+                </div>
+                {% endif %}
+                <div>
+                    <span class="hero-tag">Medical Professional Dashboard</span>
+                    <h2 class="text-gradient">Welcome back, Dr. {{ user.last_name }}</h2>
+                    <p style="color: var(--text-muted);">{{ doctor.specialization }} | {{ doctor.hospital_name }}</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <div class="stat-card" style="padding: 1rem 1.5rem; text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Total Cases
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">{{ total_scans }}</div>
+                </div>
+                <div class="stat-card" style="padding: 1rem 1.5rem; text-align: center; border-color: #f59e0b;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Pending Appt
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">{{ pending_appt }}</div>
+                </div>
+                <div class="stat-card" style="padding: 1rem 1.5rem; text-align: center; border-color: #f43f5e;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">High Risk</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #f43f5e;">{{ high_risk }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointment Management Section -->
+        <div class="upload-container"
+            style="max-width: 100%; padding: 2rem; margin-bottom: 3rem; border-color: var(--primary);">
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Consultation Requests</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Manage your clinical schedule</div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Patient</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Schedule</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Notes</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Status</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 600;">{{
+                                    appt.patient.get_full_name|default:appt.patient.username }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ appt.patient.email }}
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="font-size: 0.9rem;">{{ appt.date|date:"l, M d" }}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">at {{ appt.time|time:"H:i" }}
+                                </div>
+                            </td>
+                            <td style="padding: 1rem; font-size: 0.85rem; max-width: 250px;">{{
+                                appt.message|truncatechars:100 }}</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800; 
+                                    {% if appt.status == 'Pending' %} background: rgba(245, 158, 11, 0.1); color: #f59e0b;
+                                    {% elif appt.status == 'Approved' %} background: rgba(16, 185, 129, 0.1); color: #10b981;
+                                    {% elif appt.status == 'Cancelled' %} background: rgba(244, 63, 94, 0.1); color: #f43f5e;
+                                    {% else %} background: rgba(255,255,255,0.05); color: var(--text-muted); {% endif %}">
+                                    {{ appt.status|upper }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    {% if appt.status == 'Pending' %}
+                                    <a href="{% url 'accounts:update_appointment' appt.id 'Approved' %}"
+                                        class="btn-primary"
+                                        style="padding: 0.3rem 0.6rem; font-size: 0.7rem; border-radius: 0.4rem; text-decoration: none;">Approve</a>
+                                    <a href="{% url 'accounts:update_appointment' appt.id 'Cancelled' %}"
+                                        class="btn-outline"
+                                        style="padding: 0.3rem 0.6rem; font-size: 0.7rem; border-radius: 0.4rem; text-decoration: none;">Decline</a>
+                                    {% elif appt.status == 'Approved' %}
+                                    <a href="{% url 'accounts:update_appointment' appt.id 'Completed' %}"
+                                        class="btn-primary"
+                                        style="padding: 0.3rem 0.6rem; font-size: 0.7rem; border-radius: 0.4rem; text-decoration: none; background: #10b981;">Complete</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-muted);">No
+                                appointment requests.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="upload-container" style="max-width: 100%; padding: 2rem;">
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Recent Patient Scans</h3>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Live feed of AI-processed results</div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Patient Details</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Scan Preview</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Result</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Confidence</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Risk Level</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Date</th>
+                            <th style="padding: 1rem; font-weight: 600; color: var(--text-muted);">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in scans %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s ease;"
+                            onmouseover="this.style.background='rgba(255,255,255,0.02)'"
+                            onmouseout="this.style.background='transparent'">
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 500;">
+                                    {% if scan.user %}
+                                    {{ scan.user.get_full_name|default:scan.user.username }}
+                                    {% else %}
+                                    Guest Patient
+                                    {% endif %}
+                                </div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                    {% if scan.user and scan.user.profile %}
+                                    {{ scan.user.profile.age }}y | {{ scan.user.profile.gender }}
+                                    {% else %}
+                                    N/A
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <img src="{{ scan.image.url }}" alt="Scan"
+                                    style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover; border: 1px solid var(--glass-border);">
+                            </td>
+                            <td style="padding: 1rem; font-weight: 500;">{{ scan.result }}</td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div
+                                        style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; width: 60px;">
+                                        <div
+                                            style="height: 100%; background: var(--primary); border-radius: 99px; width: {{ scan.confidence }}%;">
+                                        </div>
+                                    </div>
+                                    <span style="font-size: 0.85rem;">{{ scan.confidence }}%</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; 
+                                    {% if scan.risk_level == 'High' %} background: rgba(244, 63, 94, 0.1); color: #f43f5e; 
+                                    {% elif scan.risk_level == 'Medium' %} background: rgba(245, 158, 11, 0.1); color: #f59e0b;
+                                    {% else %} background: rgba(16, 185, 129, 0.1); color: #10b981; {% endif %}">
+                                    {{ scan.risk_level }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                                {{ scan.created_at|date:"M d, Y" }}
+                            </td>
+                            <td style="padding: 1rem;">
+                                <a href="#" class="btn-outline"
+                                    style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 0.5rem;">Review</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                                No patient scans found in the system.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        min-width: 120px;
+        backdrop-filter: blur(10px);
+    }
+</style>
+{% endblock %}

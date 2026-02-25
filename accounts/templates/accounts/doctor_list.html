@@ -1,0 +1,67 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="section-header" style="margin-bottom: 3rem;">
+            <span class="hero-tag">Medical Network</span>
+            <h2 class="text-gradient">Find a Medical Professional</h2>
+            <p style="color: var(--text-muted);">Connect with verified dermatologists and skin care experts for a
+                professional consultation.</p>
+        </div>
+
+        <div class="feature-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
+            {% for doctor in doctors %}
+            <div class="feature-card"
+                style="padding: 2rem; display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 1.5rem; transition: all 0.3s ease;">
+                <div style="position: relative; margin-bottom: 1.5rem;">
+                    {% if doctor.profile_picture %}
+                    <img src="{{ doctor.profile_picture.url }}"
+                        style="width: 120px; height: 120px; border-radius: 1.5rem; object-fit: cover; border: 3px solid var(--primary);">
+                    {% else %}
+                    <div
+                        style="width: 120px; height: 120px; border-radius: 1.5rem; background: var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                        DR</div>
+                    {% endif %}
+                    <div
+                        style="position: absolute; bottom: -10px; right: -10px; background: #10b981; color: white; padding: 0.25rem 0.5rem; border-radius: 10px; font-size: 0.65rem; font-weight: 800; border: 2px solid #000;">
+                        VERIFIED</div>
+                </div>
+
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">Dr. {{ doctor.user.last_name }}
+                    </h3>
+                <div style="color: var(--primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 1rem;">
+                   {{ doctor.specialization }}</div>
+
+                <div style="margin-bottom: 2rem; width: 100%;">
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                        <span>🏥</span> {{ doctor.hospital_name }}
+                    </div>
+                </div>
+
+                <a href="{% url 'accounts:book_appointment' doctor.id %}" class="btn btn-primary"
+                    style="width: 100%; border-radius: 0.75rem; padding: 0.75rem;">
+                    Book Appointment
+                </a>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                <h3 style="color: var(--text-muted);">No doctors available at the moment.</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .feature-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--primary);
+        box-shadow: 0 10px 30px -10px rgba(225, 29, 72, 0.2);
+    }
+</style>
+{% endblock %}

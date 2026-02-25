@@ -1,4 +1,7 @@
 import os
+import warnings
+# Suppress the deprecation warning while we still use google-generativeai
+warnings.filterwarnings("ignore", message=".*google.genai.*")
 import google.generativeai as genai
 from django.conf import settings
 from PIL import Image

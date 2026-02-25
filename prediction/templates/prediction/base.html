@@ -33,17 +33,32 @@
             <ul class="nav-links">
                 <li><a href="{% url 'home' %}">Home</a></li>
                 {% if user.is_authenticated %}
+                {% if user.is_superuser %}
+                <li><a href="{% url 'accounts:admin_dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'accounts:all_users_list' %}">All Users</a></li>
+                {% elif user.doctor_profile %}
+                <li><a href="{% url 'accounts:dr_dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'accounts:dr_profile' %}">Profile</a></li>
+                {% else %}
                 <li><a href="{% url 'predict' %}">Analysis</a></li>
                 <li><a href="{% url 'history' %}">History</a></li>
+                <li><a href="{% url 'accounts:doctor_list' %}">Find Doctor</a></li>
+                <li><a href="{% url 'accounts:profile' %}">Profile</a></li>
+                {% endif %}
                 <li style="color: var(--text-muted); font-size: 0.9rem;">
                     <span style="color: var(--primary); font-weight: 600;">{{ user.username }}</span>
+                    {% if user.doctor_profile %}<span
+                        style="font-size: 0.7rem; opacity: 0.6; display: block;">Doctor</span>{% endif %}
                 </li>
-                <li><a href="{% url 'logout' %}" class="btn-outline"
+                <li><a href="{% url 'accounts:logout' %}" class="btn-outline"
                         style="padding: 0.4rem 1rem; border-radius: 9999px;">Logout</a></li>
+                {% if not user.doctor_profile %}
                 <li><a href="{% url 'predict' %}" class="nav-cta">Analyze Now</a></li>
+                {% endif %}
                 {% else %}
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}" class="nav-cta">Get Started</a></li>
+                <li><a href="{% url 'accounts:login' %}">Login</a></li>
+                <li><a href="{% url 'accounts:dr_login' %}" style="color: var(--primary);">Doctor Portal</a></li>
+                <li><a href="{% url 'accounts:register' %}" class="nav-cta">Get Started</a></li>
                 {% endif %}
             </ul>
         </div>

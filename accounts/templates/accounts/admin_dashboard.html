@@ -1,0 +1,135 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="dashboard-header" style="margin-bottom: 2.5rem;">
+            <span class="hero-tag">System Administration</span>
+            <h2 class="text-gradient">Admin Dashboard</h2>
+            <p style="color: var(--text-muted);">Manage platform users and medical professional applications.</p>
+        </div>
+
+        <!-- System Stats -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="stat-card" style="padding: 2rem; border-left: 4px solid var(--primary);">
+                <div
+                    style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">
+                    Total Patients</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--text);">{{ total_users }}</div>
+            </div>
+            <div class="stat-card" style="padding: 2rem; border-left: 4px solid #f59e0b;">
+                <div
+                    style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">
+                    Pending Doctors</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: #f59e0b;">{{ pending_doctors }}</div>
+            </div>
+            <div class="stat-card" style="padding: 2rem; border-left: 4px solid #10b981;">
+                <div
+                    style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">
+                    Approved Doctors</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: #10b981;">{{ approved_doctors }}</div>
+            </div>
+        </div>
+
+        <!-- Doctor Applications Section -->
+        <div class="upload-container" style="max-width: 100%; padding: 2.5rem; margin-bottom: 3rem;">
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 1.5rem; font-weight: 700;">Doctor Applications</h3>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Verification required for medical
+                    access</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <th style="padding: 1.25rem 1rem; font-weight: 600; color: var(--text-muted);">Doctor Name
+                            </th>
+                            <th style="padding: 1.25rem 1rem; font-weight: 600; color: var(--text-muted);">Specialized
+                            </th>
+                            <th style="padding: 1.25rem 1rem; font-weight: 600; color: var(--text-muted);">
+                                Hospital/License</th>
+                            <th style="padding: 1.25rem 1rem; font-weight: 600; color: var(--text-muted);">Status</th>
+                            <th style="padding: 1.25rem 1rem; font-weight: 600; color: var(--text-muted);">Date Applied
+                            </th>
+                            <th style="padding: 1.25rem 1rem; font-weight: 600; color: var(--text-muted);">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dr in doctors %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 1.25rem 1rem;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    {% if dr.profile_picture %}
+                                    <img src="{{ dr.profile_picture.url }}"
+                                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                    {% else %}
+                                    <div
+                                        style="width: 40px; height: 40px; border-radius: 50%; background: var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                                        DR</div>
+                                    {% endif %}
+                                    <div>
+                                        <div style="font-weight: 600;">{{ dr.user.get_full_name|default:dr.user.username }}
+                                            </div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ dr.user.email }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="padding: 1.25rem 1rem; font-weight: 500;">{{ dr.specialization }}</td>
+                            <td style="padding: 1.25rem 1rem;">
+                                <div style="font-size: 0.9rem;">{{ dr.hospital_name }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">License: {{ dr.license_number }}
+                                    </div>
+                            </td>
+                            <td style="padding: 1.25rem 1rem;">
+                                {% if dr.is_approved %}
+                                <span
+                                    style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700;">Approved</span>
+                                {% else %}
+                                <span
+                                    style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 700;">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 1.25rem 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                               {{ dr.created_at|date:"M d, Y" }}</td>
+                            <td style="padding: 1.25rem 1rem;">
+                                {% if not dr.is_approved %}
+                                <a href="{% url 'accounts:approve_doctor' dr.pk %}" class="btn btn-primary"
+                                    style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 0.5rem;">Approve</a>
+                                {% else %}
+                                <span style="font-size: 0.8rem; color: var(--text-muted);">No Action</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-muted);">No
+                                doctor applications found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.25rem;
+        backdrop-filter: blur(10px);
+        transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.05);
+    }
+</style>
+{% endblock %}

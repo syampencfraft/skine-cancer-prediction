@@ -1,0 +1,145 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="upload-container" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+            <div class="section-header" style="margin-bottom: 2.5rem; text-align: left;">
+                <span class="hero-tag">My Account</span>
+                <h2 class="text-gradient">Personal Profile</h2>
+                <p>Manage your account settings and personal information.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 3rem;">
+                <!-- Profile Summary -->
+                <div style="text-align: center;">
+                    <div style="position: relative; display: inline-block; margin-bottom: 1.5rem;">
+                        {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}"
+                            style="width: 180px; height: 180px; border-radius: 2rem; object-fit: cover; border: 4px solid var(--glass-border); box-shadow: var(--neon-shadow);">
+                        {% else %}
+                        <div
+                            style="width: 180px; height: 180px; border-radius: 2rem; background: var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+                            👤</div>
+                        {% endif %}
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                        {{ profile.user.get_full_name|default:profile.user.username }}</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Patient ID: #
+                        {{ profile.user.id|stringformat:"05d" }}</p>
+
+                    <div
+                        style="margin-top: 2rem; background: rgba(255,255,255,0.03); border-radius: 1rem; padding: 1.5rem; text-align: left;">
+                        <div style="margin-bottom: 1rem;">
+                            <label
+                                style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Member
+                                Since</label>
+                            <div style="font-weight: 500;">{{ profile.user.date_joined|date:"M d, Y" }}</div>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Last
+                                Activity</label>
+                            <div style="font-weight: 500;">{{ profile.user.last_login|date:"M d, Y"|default:"Today" }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="{{ field.id_for_label }}"
+                                style="display: block; font-size: 0.95rem; color: var(--text); font-weight: 500; margin-bottom: 0.5rem;">
+                                {{ field.label }}
+                            </label>
+                            <div class="form-field-wrapper">
+                                {{ field }}
+                            </div>
+                            {% if field.errors %}
+                            <div style="color: var(--primary); font-size: 0.8rem; margin-top: 0.4rem;">{{ field.errors
+                                }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary"
+                            style="width: 100%; margin-top: 1rem; border-radius: 1rem; padding: 1rem;">
+                            Update Profile
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Appointment History Section -->
+                <div class="upload-container"
+                    style="max-width: 100%; border-radius: 1.5rem; padding: 2.5rem; margin-top: 3rem; background: rgba(255, 255, 255, 0.02);">
+                    <div
+                        style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700;">My Consultations</h3>
+                        <a href="{% url 'accounts:doctor_list' %}" class="btn-outline"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 0.5rem; text-decoration: none;">Book
+                            New</a>
+                    </div>
+
+                    <div style="display: grid; gap: 1rem;">
+                        {% for appt in profile.user.appointments.all|dictsortreversed:"date" %}
+                        <div
+                            style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 1rem; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.25rem;">Dr. {{
+                                    appt.doctor.user.last_name }}</div>
+                                <div style="font-size: 0.85rem; color: var(--text);">{{ appt.date|date:"l, M d, Y" }} at
+                                    {{ appt.time|time:"H:i" }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">{{
+                                    appt.message|truncatechars:60 }}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span
+                                    style="display: block; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.7rem; font-weight: 800; margin-bottom: 0.5rem;
+                                    {% if appt.status == 'Pending' %} background: rgba(245, 158, 11, 0.1); color: #f59e0b;
+                                    {% elif appt.status == 'Approved' %} background: rgba(16, 185, 129, 0.1); color: #10b981;
+                                    {% elif appt.status == 'Cancelled' %} background: rgba(244, 63, 94, 0.1); color: #f43f5e;
+                                    {% else %} background: rgba(255,255,255,0.05); color: var(--text-muted); {% endif %}">
+                                    {{ appt.status|upper }}
+                                </span>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">{{ appt.doctor.hospital_name
+                                    }}</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+                            No appointments booked yet.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-field-wrapper input,
+    .form-field-wrapper select {
+        width: 100% !important;
+        padding: 0.75rem 1.25rem !important;
+        border-radius: 0.75rem !important;
+        color: var(--text) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid var(--glass-border) !important;
+        outline: none !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .form-field-wrapper input:focus,
+    .form-field-wrapper select:focus {
+        border-color: var(--primary) !important;
+        background: rgba(225, 29, 72, 0.05) !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'prediction/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="section">
+    <div class="container" style="max-width: 900px;">
+        <div class="section-header" style="text-align: center; margin-bottom: 3.5rem;">
+            <span class="hero-tag">Clinical Booking</span>
+            <h2 class="text-gradient">Book Your Consultation</h2>
+            <p style="color: var(--text-muted);">Secure a professional review of your case with Dr. {{
+                doctor.user.last_name }}</p>
+        </div>
+
+        <div
+            style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 2rem; padding: 3rem; backdrop-filter: blur(10px);">
+            <!-- Doctor Sidebar -->
+            <div style="border-right: 1px solid var(--glass-border); padding-right: 3rem; text-align: center;">
+                {% if doctor.profile_picture %}
+                <img src="{{ doctor.profile_picture.url }}"
+                    style="width: 100px; height: 100px; border-radius: 1rem; object-fit: cover; margin-bottom: 1.5rem; border: 2px solid var(--primary);">
+                {% else %}
+                <div
+                    style="width: 100px; height: 100px; border-radius: 1rem; background: var(--glass-border); margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                    DR</div>
+                {% endif %}
+
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Dr. {{ doctor.user.last_name }}
+                </h3>
+                <div style="color: var(--primary); font-size: 0.9rem; margin-bottom: 2rem; font-weight: 600;">
+                    {{ doctor.specialization }}</div>
+
+                <div
+                    style="text-align: left; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 0.75rem; font-size: 0.8rem; color: var(--text-muted);">
+                    <div style="margin-bottom: 0.5rem;">🏥 {{ doctor.hospital_name }}</div>
+                    <div>📜 Lic: {{ doctor.license_number }}</div>
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            <div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div style="display: grid; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Preferred
+                                Date</label>
+                            {{ form.date }}
+                        </div>
+                        <div class="form-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Preferred
+                                Time</label>
+                            {{ form.time }}
+                        </div>
+                        <div class="form-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase;">Clinical
+                                Notes / Symptoms</label>
+                            {{ form.message }}
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <button type="submit" class="btn btn-primary"
+                                style="width: 100%; border-radius: 1rem; padding: 1.25rem; font-weight: 700;">
+                                Confirm Booking Request
+                            </button>
+                            <p
+                                style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 1rem; line-height: 1.4;">
+                                You will receive a notification once the doctor approves your request.
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 0.75rem !important;
+        padding: 0.85rem 1rem !important;
+        color: white !important;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--primary) !important;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.1);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
